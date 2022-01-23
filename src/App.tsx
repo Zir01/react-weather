@@ -1,24 +1,37 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { IWeatherResponse, OpenWeatherClient } from './api/OpenWeatherClient';
+import WeatherItem from './components/WeatherItem';
 
-function App() {
+const App: React.FC = () => {
+
+  const [weatherList, setWeatherList] = React.useState<IWeatherResponse[]>([]);
+  const [hideLoading, setHideLoading] = React.useState<boolean>(false);
+
+
+
+  React.useEffect(() => {
+    const api = new OpenWeatherClient();
+    // Load weather for all Aussie cities on initial load
+    (async () => {
+      const weatherData = await api.getWeatherForAllCitiesAsync();
+      setWeatherList(weatherData);
+      setHideLoading(true);
+    })();
+  }, [])
+
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h3>Current weather Australia</h3>
+      <h4 hidden={hideLoading} >Please wait... loading weather</h4>
+      <div className='container'>
+        {weatherList.map((item, index) => (
+          <WeatherItem key={item.id} weatherData={item} ></WeatherItem>
+        ))}
+      </div>
     </div>
   );
 }
